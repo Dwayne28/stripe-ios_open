@@ -6,7 +6,7 @@ protocol TestingImageDataSource: AnyObject {
     func nextSquareAndFullImage() -> (CGImage, CGImage)?
 }
 
-class ScanBaseViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate, AfterPermissions, OcrMainLoopDelegate {
+open class ScanBaseViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate, AfterPermissions, OcrMainLoopDelegate {
     
     weak var testingImageDataSource: TestingImageDataSource?
     var includeCardImage = false
@@ -52,22 +52,22 @@ class ScanBaseViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
         return mainLoop.flatMap { $0 as? OcrMainLoop }
     }
     // this is a hack to avoid changing our  interface
-    var predictedName: String?
+    public var predictedName: String?
     
     // Child classes should override these functions
-    func onScannedCard(number: String, expiryYear: String?, expiryMonth: String?, scannedImage: UIImage?) { }
+    open func onScannedCard(number: String, expiryYear: String?, expiryMonth: String?, scannedImage: UIImage?) { }
     func showCardNumber(_ number: String, expiry: String?) { }
-    func showWrongCard(number: String?, expiry: String?, name: String?) { }
-    func showNoCard() { }
+    public func showWrongCard(number: String?, expiry: String?, name: String?) { }
+    public func showNoCard() { }
     func onCameraPermissionDenied(showedPrompt: Bool) { }
     func useCurrentFrameNumber(errorCorrectedNumber: String?, currentFrameNumber: String) -> Bool { return true }
 
     // MARK: Inits
-    init() {
+    public init() {
         super.init(nibName: nil, bundle: nil)
     }
 
-    required init?(coder: NSCoder) {
+    required public init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
@@ -219,13 +219,16 @@ class ScanBaseViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
         #endif
     }
     
-    func setupOnViewDidLoad(
+    public func setupOnViewDidLoad(
         regionOfInterestLabel: UIView,
         blurView: BlurView,
         previewView: PreviewView,
         cornerView: CornerView?,
         debugImageView: UIImageView?,
-        torchLevel: Float?
+        torchLevel: Float?,
+        borderColor: CGColor = UIColor.white.cgColor,
+        cornerRadius: CGFloat = 0,
+        borderWidth: CGFloat = 0
     ) {
         
         self.regionOfInterestLabel = regionOfInterestLabel
@@ -238,9 +241,10 @@ class ScanBaseViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
         
         setNeedsStatusBarAppearanceUpdate()
         regionOfInterestLabel.layer.masksToBounds = true
-        regionOfInterestLabel.layer.cornerRadius = self.regionOfInterestCornerRadius
-        regionOfInterestLabel.layer.borderColor = UIColor.white.cgColor
-        regionOfInterestLabel.layer.borderWidth = 2.0
+//        regionOfInterestLabel.layer.cornerRadius = self.regionOfInterestCornerRadius
+        regionOfInterestLabel.layer.cornerRadius = cornerRadius
+        regionOfInterestLabel.layer.borderColor = borderColor
+        regionOfInterestLabel.layer.borderWidth = borderWidth
         
         if !ScanBaseViewController.isPadAndFormsheet {
             UIDevice.current.setValue(UIDeviceOrientation.portrait.rawValue, forKey: "orientation")
@@ -269,23 +273,23 @@ class ScanBaseViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
         })
     }
     
-    override var shouldAutorotate: Bool {
+    public override var shouldAutorotate: Bool {
         return true
     }
     
-    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+    public override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
         return ScanBaseViewController.isPadAndFormsheet ? .allButUpsideDown : .portrait
     }
     
-    override var preferredInterfaceOrientationForPresentation: UIInterfaceOrientation {
+    public override var preferredInterfaceOrientationForPresentation: UIInterfaceOrientation {
         return ScanBaseViewController.isPadAndFormsheet ? UIWindow.interfaceOrientation : .portrait
     }
 
-    override var preferredStatusBarStyle: UIStatusBarStyle {
+    public override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
     
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+    public override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
         
         if let videoFeedConnection = self.videoFeed.videoDeviceConnection, videoFeedConnection.isVideoOrientationSupported {
@@ -296,7 +300,7 @@ class ScanBaseViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
         }
     }
     
-    override func viewWillAppear(_ animated: Bool) {
+    public override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         ScanBaseViewController.isAppearing = true
         /// Set beginning of scan session
@@ -311,7 +315,7 @@ class ScanBaseViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
         self.navigationController?.setNavigationBarHidden(hideNavigationBar, animated: animated)
     }
     
-    override func viewDidLayoutSubviews() {
+    public override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
         self.view.layoutIfNeeded()
@@ -323,18 +327,18 @@ class ScanBaseViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
         self.setupMask()
     }
     
-    override func viewDidAppear(_ animated: Bool) {
+    public override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         self.ocrMainLoop()?.scanStats.orientation = UIWindow.interfaceOrientationToString
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
+    public override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         self.videoFeed.willDisappear()
         self.navigationController?.setNavigationBarHidden(self.isNavigationBarHidden ?? false, animated: animated)
     }
     
-    override func viewDidDisappear(_ animated: Bool) {
+    public override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         ScanBaseViewController.isAppearing = false
     }
@@ -343,7 +347,7 @@ class ScanBaseViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
         return self.ocrMainLoop()?.scanStats ?? ScanStats()
     }
     
-    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+    public func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         if self.machineLearningSemaphore.wait(timeout: .now()) == .success {
             ScanBaseViewController.machineLearningQueue.async {
                 self.captureOutputWork(sampleBuffer: sampleBuffer)
@@ -398,7 +402,7 @@ class ScanBaseViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
     }
 
     // MARK: -OcrMainLoopComplete logic
-    func complete(creditCardOcrResult: CreditCardOcrResult) {
+    public func complete(creditCardOcrResult: CreditCardOcrResult) {
         ocrMainLoop()?.mainLoopDelegate = nil
         /// Stop the previewing when we are done
         self.previewView?.videoPreviewLayer.session?.stopRunning()
@@ -415,7 +419,7 @@ class ScanBaseViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
         self.onScannedCard(number: creditCardOcrResult.number, expiryYear: creditCardOcrResult.expiryYear, expiryMonth: creditCardOcrResult.expiryMonth, scannedImage: scannedCardImage)
     }
 
-    func prediction(prediction: CreditCardOcrPrediction, imageData: ScannedCardImageData, state: MainLoopState) {
+    public func prediction(prediction: CreditCardOcrPrediction, imageData: ScannedCardImageData, state: MainLoopState) {
         if !firstImageProcessed {
             ScanAnalyticsManager.shared.logScanActivityTaskFromStartTime(event: .firstImageProcessed)
             firstImageProcessed = true
@@ -461,18 +465,18 @@ class ScanBaseViewController: UIViewController, AVCaptureVideoDataOutputSampleBu
         }
     }
 
-    func showCardDetails(number: String?, expiry: String?, name: String?) {
+    public func showCardDetails(number: String?, expiry: String?, name: String?) {
         guard let number = number else { return }
         showCardNumber(number, expiry: expiry)
     }
 
-    func showCardDetailsWithFlash(number: String?, expiry: String?, name: String?) {
+    public func showCardDetailsWithFlash(number: String?, expiry: String?, name: String?) {
         if !isTorchOn() { toggleTorch() }
         guard let number = number else { return }
         showCardNumber(number, expiry: expiry)
     }
 
-    func shouldUsePrediction(errorCorrectedNumber: String?, prediction: CreditCardOcrPrediction) -> Bool {
+    public func shouldUsePrediction(errorCorrectedNumber: String?, prediction: CreditCardOcrPrediction) -> Bool {
         guard let predictedNumber = prediction.number else { return true }
         return useCurrentFrameNumber(errorCorrectedNumber: errorCorrectedNumber, currentFrameNumber: predictedNumber)
     }

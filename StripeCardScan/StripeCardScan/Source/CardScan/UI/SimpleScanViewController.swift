@@ -58,12 +58,12 @@ import UIKit
  the most sense for your app.
  */
 
-protocol SimpleScanDelegate: AnyObject {
+public protocol SimpleScanDelegate: AnyObject {
     func userDidCancelSimple(_ scanViewController: SimpleScanViewController)
     func userDidScanCardSimple(_ scanViewController: SimpleScanViewController, creditCard: CreditCard)
 }
 
-class SimpleScanViewController: ScanBaseViewController {
+public class SimpleScanViewController: ScanBaseViewController {
 
     // used by ScanBase
     var previewView: PreviewView = PreviewView()
@@ -110,12 +110,12 @@ class SimpleScanViewController: ScanBaseViewController {
     static var torchButtonString = String.Localized.torch
     static var privacyLinkString = String.Localized.scan_card_privacy_link_text
     
-    weak var delegate: SimpleScanDelegate?
+    public weak var delegate: SimpleScanDelegate?
     var scanPerformancePriority: ScanPerformance = .fast
     var maxErrorCorrectionDuration: Double = 4.0
 
     // MARK: Inits
-    override init() {
+    public override init() {
         super.init()
         if UIDevice.current.userInterfaceIdiom == .pad {
             // For the iPad you can use the full screen style but you have to select "requires full screen" in
@@ -131,7 +131,7 @@ class SimpleScanViewController: ScanBaseViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         super.viewDidLoad()
         
         setupUiComponents()
@@ -160,7 +160,7 @@ class SimpleScanViewController: ScanBaseViewController {
 
       Figure out a better way of allow custom buttons programmatically instead of whole UI buttons.
      */
-    override func viewDidDisappear(_ animated: Bool) {
+    public override func viewDidDisappear(_ animated: Bool) {
         closeButton.removeTarget(self, action: #selector(cancelButtonPress), for: .touchUpInside)
         torchButton.removeTarget(self, action: #selector(torchButtonPress), for: .touchUpInside)
     }
@@ -395,7 +395,7 @@ class SimpleScanViewController: ScanBaseViewController {
     }
     
     // MARK: -Override some ScanBase functions
-    override func onScannedCard(number: String, expiryYear: String?, expiryMonth: String?, scannedImage: UIImage?) {
+    public override func onScannedCard(number: String, expiryYear: String?, expiryMonth: String?, scannedImage: UIImage?) {
         let card = CreditCard(number: number)
         card.expiryMonth = expiryMonth
         card.expiryYear = expiryYear
@@ -430,13 +430,13 @@ class SimpleScanViewController: ScanBaseViewController {
         }
     }
 
-    override func prediction(prediction: CreditCardOcrPrediction, imageData: ScannedCardImageData, state: MainLoopState) {
+    public override func prediction(prediction: CreditCardOcrPrediction, imageData: ScannedCardImageData, state: MainLoopState) {
         super.prediction(prediction: prediction, imageData: imageData, state: state)
         
         showScannedCardDetails(prediction: prediction)
     }
     
-    override func onCameraPermissionDenied(showedPrompt: Bool) {
+    public override func onCameraPermissionDenied(showedPrompt: Bool) {
         descriptionText.isHidden = true
         torchButton.isHidden = true
         

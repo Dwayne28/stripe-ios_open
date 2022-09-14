@@ -36,7 +36,7 @@ enum CenteredCardState {
     }
 }
 
-struct CreditCardOcrPrediction {
+public struct CreditCardOcrPrediction {
     let image: CGImage
     let ocrCroppingRectangle: CGRect
     let number: String?

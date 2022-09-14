@@ -1,6 +1,6 @@
 import Foundation
 
-class ErrorCorrection {
+public class ErrorCorrection {
     let stateMachine: MainLoopStateMachine
     var frames = 0
     var numbers: [String: Int] = [:]

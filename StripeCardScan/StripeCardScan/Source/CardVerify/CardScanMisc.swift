@@ -4,20 +4,20 @@ protocol CaptureOutputDelegate {
     func capture(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection)
 }
 
-class CreditCard: NSObject {
-    var number: String
-    var expiryMonth: String?
-    var expiryYear: String?
-    var name: String?
-    var image: UIImage?
-    var cvv: String?
-    var postalCode: String?
+public class CreditCard: NSObject {
+    public var number: String
+    public var expiryMonth: String?
+    public var expiryYear: String?
+    public var name: String?
+    public var image: UIImage?
+    public var cvv: String?
+    public var postalCode: String?
     
-    init(number: String) {
+    public init(number: String) {
         self.number = number
     }
     
-    func expiryForDisplay() -> String? {
+    public func expiryForDisplay() -> String? {
         guard var month = self.expiryMonth, var year = self.expiryYear else {
             return nil
         }

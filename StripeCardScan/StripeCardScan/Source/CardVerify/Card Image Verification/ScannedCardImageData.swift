@@ -11,7 +11,7 @@ import UIKit
 /**
  Data structure representing an image frame captured during the scanning flow.
  */
-struct ScannedCardImageData {
+public struct ScannedCardImageData {
     /// The image of the scanned card after it has been converted from AVCaptureSession to the video preview layer coordinate system
     let previewLayerImage: CGImage
     /// The viewfinder bounds after it has been converted from the AVCaptureSession to the video preview layer coordinate system

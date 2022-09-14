@@ -7,7 +7,7 @@
 
 import UIKit
 
-class BlurView: UIView {
+public class BlurView: UIView {
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }

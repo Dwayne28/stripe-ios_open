@@ -1,6 +1,6 @@
 import UIKit
 
-class CornerView: UIView {
+public class CornerView: UIView {
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }

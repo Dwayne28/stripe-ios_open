@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum MainLoopState: Equatable {
+public enum MainLoopState: Equatable {
     case initial
     case ocrOnly
     case cardOnly
@@ -19,7 +19,7 @@ enum MainLoopState: Equatable {
     case nameAndExpiry
 }
 
-protocol MainLoopStateMachine {
+public protocol MainLoopStateMachine {
     func loopState() -> MainLoopState
     func event(prediction: CreditCardOcrPrediction) -> MainLoopState
     func reset() -> MainLoopStateMachine
@@ -68,7 +68,7 @@ class OcrMainLoopStateMachine: NSObject, MainLoopStateMachine {
     }
 }
 
-class OcrAccurateMainLoopStateMachine: NSObject, MainLoopStateMachine {
+public class OcrAccurateMainLoopStateMachine: NSObject, MainLoopStateMachine {
     var state: MainLoopState = .initial
     var startTimeForCurrentState = Date()
     var hasExpiryPrediction = false
@@ -76,17 +76,17 @@ class OcrAccurateMainLoopStateMachine: NSObject, MainLoopStateMachine {
     let minimumErrorCorrection = 2.0
     var maximumErrorCorrection = 4.0
     
-    func loopState() -> MainLoopState {
+    public func loopState() -> MainLoopState {
         return state
     }
     
     override init() { }
     
-    init(maxErrorCorrection: Double) {
+    public init(maxErrorCorrection: Double) {
         self.maximumErrorCorrection = maxErrorCorrection
     }
     
-    func event(prediction: CreditCardOcrPrediction) -> MainLoopState {
+    public func event(prediction: CreditCardOcrPrediction) -> MainLoopState {
         let newState = transition(prediction: prediction)
         if let newState = newState {
             startTimeForCurrentState = Date()
@@ -111,7 +111,7 @@ class OcrAccurateMainLoopStateMachine: NSObject, MainLoopStateMachine {
             return nil
         }
     }
-    func reset() -> MainLoopStateMachine {
+    public func reset() -> MainLoopStateMachine {
         return OcrAccurateMainLoopStateMachine(maxErrorCorrection: maximumErrorCorrection)
     }
 }

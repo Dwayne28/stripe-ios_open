@@ -66,7 +66,7 @@
 
 import UIKit
 
-protocol OcrMainLoopDelegate: AnyObject {
+public protocol OcrMainLoopDelegate: AnyObject {
     func complete(creditCardOcrResult: CreditCardOcrResult)
     func prediction(prediction: CreditCardOcrPrediction, imageData: ScannedCardImageData, state: MainLoopState)
     func showCardDetails(number: String?, expiry: String?, name: String?)
@@ -76,12 +76,12 @@ protocol OcrMainLoopDelegate: AnyObject {
     func shouldUsePrediction(errorCorrectedNumber: String?, prediction: CreditCardOcrPrediction) -> Bool
 }
 
-protocol MachineLearningLoop: AnyObject {
+public protocol MachineLearningLoop: AnyObject {
     func push(imageData: ScannedCardImageData)
 }
 
-class OcrMainLoop : MachineLearningLoop {
-    enum AnalyzerType {
+public class OcrMainLoop : MachineLearningLoop {
+    public enum AnalyzerType {
         case apple
         case ssd
     }
@@ -98,7 +98,7 @@ class OcrMainLoop : MachineLearningLoop {
     var machineLearningQueues: [DispatchQueue] = []
     var userDidCancel = false
     
-    init(analyzers: [AnalyzerType] = [.ssd, .apple]) {
+    public init(analyzers: [AnalyzerType] = [.ssd, .apple]) {
         var ocrImplementations: [CreditCardOcrImplementation] = []
         for analyzer in analyzers {
             let queueLabel = "\(analyzer) OCR ML"
@@ -123,7 +123,7 @@ class OcrMainLoop : MachineLearningLoop {
         registerAppNotifications()
     }
     
-    func reset() {
+    public func reset() {
         mutexQueue.async {
             self.errorCorrection = self.errorCorrection.reset()
         }
@@ -135,7 +135,7 @@ class OcrMainLoop : MachineLearningLoop {
     
     // see the Correctness Criteria note in the comments above for why this is correct
     // Make sure you call this from the main dispatch queue
-    func userCancelled() {
+    public func userCancelled() {
         userDidCancel = true
         mutexQueue.sync { [weak self] in
             guard let self = self else { return }
@@ -148,7 +148,7 @@ class OcrMainLoop : MachineLearningLoop {
         }
     }
     
-    func push(imageData: ScannedCardImageData) {
+    public func push(imageData: ScannedCardImageData) {
         mutexQueue.sync {
             guard !inBackground else { return }
             // only keep the latest images
