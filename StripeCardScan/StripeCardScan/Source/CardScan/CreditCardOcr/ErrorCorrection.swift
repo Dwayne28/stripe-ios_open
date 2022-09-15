@@ -13,7 +13,7 @@ public class ErrorCorrection {
         return Double(frames) / -startTime.timeIntervalSinceNow
     }
     
-    init(stateMachine: MainLoopStateMachine) {
+    public init(stateMachine: MainLoopStateMachine) {
         self.stateMachine = stateMachine
     }
     
